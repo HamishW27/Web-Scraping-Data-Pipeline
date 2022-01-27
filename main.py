@@ -4,10 +4,10 @@ import time
 
 
 class Scraper:
-    def __init__(self, webpage, accept_cookies=False) -> None:
+    def __init__(self, webpage, bool_accept_cookies=False) -> None:
         self.webpage = webpage
         self.driver = webdriver.Chrome()
-        self.bool_accept_cookies = accept_cookies
+        self.bool_accept_cookies = bool_accept_cookies
         self.links = []
 
     @staticmethod
@@ -35,7 +35,7 @@ class Scraper:
 
 if __name__ == "__main__":
     epicgames = Scraper(
-        'https://www.epicgames.com/store/en-US/browse?sortBy=releaseDate&sortDir=DESC&count=1000', accept_cookies=True)
+        'https://www.epicgames.com/store/en-US/browse?sortBy=releaseDate&sortDir=DESC&count=1000', bool_accept_cookies=True)
     epicgames.get_links()
 
     print(epicgames.links)

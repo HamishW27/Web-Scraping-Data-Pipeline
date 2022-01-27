@@ -4,18 +4,24 @@ import time
 
 
 class Scraper:
-    def __init__(self, webpage) -> None:
+    def __init__(self, webpage, accept_cookies=False) -> None:
         self.webpage = webpage
         self.driver = webdriver.Chrome()
+        self.accept_cookies = accept_cookies
         self.links = []
+
+    @staticmethod
+    def accept_cookies(driver):
+        accept_cookies_button = driver.find_element_by_xpath(
+            '//*[@id="onetrust-accept-btn-handler"]')
+        accept_cookies_button.click()
 
     def get_links(self):
         self.driver.get(self.webpage)
 
-        time.sleep(5)
-        accept_cookies_button = self.driver.find_element_by_xpath(
-            '//*[@id="onetrust-accept-btn-handler"]')
-        accept_cookies_button.click()
+        if self.accept_cookies == True:
+            time.sleep(5)
+            Scraper.accept_cookies(self.driver)
 
         time.sleep(15)
 
@@ -29,7 +35,7 @@ class Scraper:
 
 if __name__ == "__main__":
     epicgames = Scraper(
-        'https://www.epicgames.com/store/en-US/browse?sortBy=releaseDate&sortDir=DESC&count=1000')
+        'https://www.epicgames.com/store/en-US/browse?sortBy=releaseDate&sortDir=DESC&count=1000', accept_cookies=True)
     epicgames.get_links()
 
     print(epicgames.links)

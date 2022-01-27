@@ -1,13 +1,30 @@
+'''
+This is a scraper module specifically for use with the website 
+"https://www.epicgames.com/store/en-US/." 
+it contains the Scraper class which allows you to:
+- Scrape the homepage for links to games
+- Scrape details about each game from their respective pages
+- Store details about each game
+- Monitor trends and changes to the store and its games over time
+'''
+
 import requests
 from selenium import webdriver
 import time
 
 
 class Scraper:
-    def __init__(self, webpage, bool_accept_cookies=False) -> None:
+    '''
+    This is the initialistion function
+    Attribute: 
+        webpage(string): The url of the page you want to scrape
+        driver(WebDriver): Used to specify the browser for selenium to use
+
+    '''
+
+    def __init__(self, webpage) -> None:
         self.webpage = webpage
         self.driver = webdriver.Chrome()
-        self.bool_accept_cookies = bool_accept_cookies
         self.links = []
 
     @staticmethod
@@ -19,9 +36,8 @@ class Scraper:
     def get_links(self):
         self.driver.get(self.webpage)
 
-        if self.bool_accept_cookies == True:
-            time.sleep(5)
-            Scraper.accept_cookies(self.driver)
+        time.sleep(5)
+        Scraper.accept_cookies(self.driver)
 
         time.sleep(15)
 
@@ -35,7 +51,7 @@ class Scraper:
 
 if __name__ == "__main__":
     epicgames = Scraper(
-        'https://www.epicgames.com/store/en-US/browse?sortBy=releaseDate&sortDir=DESC&count=1000', bool_accept_cookies=True)
+        'https://www.epicgames.com/store/en-US/browse?sortBy=releaseDate&sortDir=DESC&count=1000')
     epicgames.get_links()
 
     print(epicgames.links)

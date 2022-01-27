@@ -12,6 +12,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
+import uuid
 
 
 class Scraper:
@@ -82,5 +83,7 @@ if __name__ == "__main__":
     epicgames = Scraper(
         'https://www.epicgames.com/store/en-US/browse?sortBy=releaseDate&sortDir=DESC&count=1000')
     list_of_games = epicgames.get_links()
+    list_of_ids = [uuid.uuid4() for x in range(len(list_of_games))]
+    dictionary_of_game_urls = dict.fromkeys(list_of_games, uuid.uuid4())
 
-    print(list_of_games)
+    print(dictionary_of_game_urls)

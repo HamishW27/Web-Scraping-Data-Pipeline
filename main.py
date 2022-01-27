@@ -10,6 +10,7 @@ it contains the Scraper class which allows you to:
 
 import requests
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import time
 
 
@@ -18,6 +19,7 @@ class Scraper:
     This is the Scraper function. It is used to scrape urls from the 
     site's homepage and then information about each individual game
     Attribute: 
+        options(Options): A variable that only serves the purpose of allowing Selenium to run headless
         webpage(string): The url of the page you want to scrape
         driver(WebDriver): Used to specify the browser for selenium to use
         links(List): A list of urls pertaining to the webpage for each game
@@ -27,8 +29,10 @@ class Scraper:
         '''
         See help(Scraper) for accurate signature
         '''
+        options = Options()
+        options.headless = True
         self.webpage = webpage
-        self.driver = webdriver.Chrome()
+        self.driver = webdriver.Chrome(options=options)
         self.links = []
 
     @staticmethod

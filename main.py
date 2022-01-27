@@ -7,7 +7,7 @@ class Scraper:
     def __init__(self, webpage, accept_cookies=False) -> None:
         self.webpage = webpage
         self.driver = webdriver.Chrome()
-        self.accept_cookies = accept_cookies
+        self.bool_accept_cookies = accept_cookies
         self.links = []
 
     @staticmethod
@@ -19,7 +19,7 @@ class Scraper:
     def get_links(self):
         self.driver.get(self.webpage)
 
-        if self.accept_cookies == True:
+        if self.bool_accept_cookies == True:
             time.sleep(5)
             Scraper.accept_cookies(self.driver)
 

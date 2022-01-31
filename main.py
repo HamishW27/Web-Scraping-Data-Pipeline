@@ -1,6 +1,6 @@
 '''
-This is a scraper module specifically for use with the website 
-"https://www.epicgames.com/store/en-US/." 
+This is a scraper module specifically for use with the website
+"https://www.epicgames.com/store/en-US/."
 it contains the Scraper class which allows you to:
 - Scrape the homepage for links to games
 - Scrape details about each game from their respective pages
@@ -8,18 +8,23 @@ it contains the Scraper class which allows you to:
 - Monitor trends and changes to the store and its games over time
 '''
 
+from gettext import find
+from imp import release_lock
+from platform import release
+from pandas import date_range
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
 import uuid
+from datetime import datetime
 
 
 class Scraper:
     '''
-    This is the Scraper function. It is used to scrape urls from the 
+    This is the Scraper function. It is used to scrape urls from the
     site's homepage and then information about each individual game
-    Attribute: 
+    Attribute:
         options(Options): A variable that only serves the purpose of allowing Selenium to run headless
         webpage(string): The url of the page you want to scrape
         driver(WebDriver): Used to specify the browser for selenium to use
@@ -39,7 +44,7 @@ class Scraper:
     @staticmethod
     def accept_cookies(driver) -> None:
         '''
-        This function is used to allow Selenium to click the 
+        This function is used to allow Selenium to click the
         'Accept Cookies' button on the site's mainpage
 
         Args:
@@ -55,7 +60,7 @@ class Scraper:
 
     def get_links(self):
         '''
-        This function is used to return a list of the urls of 
+        This function is used to return a list of the urls of
         games in the Epic Games Store
 
         Returns:
@@ -74,9 +79,48 @@ class Scraper:
             link = game.get_attribute('href')
             self.links.append(link)
 
-        self.driver.close()
-
         return self.links
+
+    @staticmethod
+    def scrape_page_info(url, driver):
+        driver.get(url)
+        try:
+            age_limit_button = driver.find_element_by_xpath(
+                '//*[@data-component="BaseButton"]')
+            age_limit_button.click()
+        finally:
+            title = driver.find_element_by_xpath('//h1').text
+            price_layout = driver.find_element_by_xpath(
+                '//*[@data-component="PriceLayout"]').text.split('\n')
+            if len(price_layout) == 1:
+                discount, reduced_from_price, price = None, None, price_layout[0]
+            else:
+                discount, reduced_from_price, price = price_layout
+            sidebar = driver.find_element_by_xpath(
+                '//*[@data-component="SidebarMetadataLayout"]').text.split('\n')
+            developer = sidebar[sidebar.index('Developer') + 1]
+            genre = driver.find_element_by_xpath(
+                '//*[@data-component="Metadata"]').text.split('\n')[1:]
+            release_date = sidebar[sidebar.index('Release Date') + 1]
+            release_date_as_datetime = datetime.strptime(
+                release_date, '%m/%d/%y')
+            try:
+                critic_bar = driver.find_element_by_xpath(
+                    '//*[@data-component="PDPCriticReviewMetricsLayout"]').text.split('\n')
+                critic_recommend = parse_percentage(
+                    critic_bar[critic_bar.index('Critics Recommend') - 1])
+                critic_top_average = critic_bar[critic_bar.index(
+                    'Top Critic Average') - 1]
+            except:
+                critic_recommend, critic_top_average = None, None
+
+            return {'title': title, 'discounted from price': reduced_from_price, 'price': price,
+                    'developer': developer, 'genre': genre, 'release date': release_date_as_datetime,
+                    'critics recommend': critic_recommend, 'critic top average': critic_top_average}
+
+
+def parse_percentage(str):
+    return int(str.strip('%'))
 
 
 if __name__ == "__main__":
@@ -87,5 +131,3 @@ if __name__ == "__main__":
     url_data = []
     for i in range(len(list_of_games)):
         url_data.append({'url': list_of_games[i], 'id': uuid.uuid4()})
-
-    print(url_data)

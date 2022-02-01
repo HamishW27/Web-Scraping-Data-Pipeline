@@ -8,10 +8,6 @@ it contains the Scraper class which allows you to:
 - Monitor trends and changes to the store and its games over time
 '''
 
-from gettext import find
-from imp import release_lock
-from platform import release
-from pandas import date_range
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options

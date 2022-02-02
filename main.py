@@ -36,7 +36,7 @@ class Scraper:
         options = Options()
         options.headless = True
         self.webpage = webpage
-        self.driver = webdriver.Chrome()
+        self.driver = webdriver.Chrome(options=options)
         self.links = []
 
     @staticmethod

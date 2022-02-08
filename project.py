@@ -17,6 +17,7 @@ import requests
 import json
 from pathlib import Path
 from bs4 import BeautifulSoup
+import urllib.request
 
 
 class Scraper:
@@ -88,8 +89,12 @@ class Scraper:
 
         # Scrape the title and the price changes individually
         title = page.find(attrs={'data-component': "PDPTitleHeader"}).text
-        price_layout = page.find(
+        try:
+            price_layout = page.find(
             attrs={'data-component': "PriceLayout"}).text.split('£')
+        
+        except Exception:
+            price_layout = [None, None, None]
 
         if price_layout[0] == 'Free':
             discount, reduced_from_price, price = None, None, 0
@@ -189,9 +194,12 @@ if __name__ == "__main__":
         game_info = epicgames.scrape_page_info(
             id_links[i]['url'])
         filename = './raw_data/' + \
-            str(id_links[i]['id']) + '/' + str(id_links[i]['id']) + '.json'
+            str(id_links[i]['id']) + '/' + 'data.json'
         f = open(filename, 'x')
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
-
+        for j in range(len(game_info['pictures'])):
+            filename = './raw_data/' + str(id_links[i]['id']) + '/image{}.jpg'.format(str(j))
+            urllib.request.urlretrieve(game_info['pictures'][j], filename)
+    
     print('Finished scraping pages')

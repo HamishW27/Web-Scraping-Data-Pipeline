@@ -182,12 +182,28 @@ class Scraper:
     
     @staticmethod
     def scrape_images(folder_name, pictures, length):
-        for j in range(length):
+        '''
+        This is a static method used to scrape images and store them
+        in the same folder is their respective json files
+
+        Args:
+            folder_name(string) the name of the folder within ./raw_data
+            that the images will be saved into
+            pictures(list) a list of the urls corresponding to each image
+        
+        Returns:
+            None
+        '''
+        for j in range(len(pictures)):
             filename = './raw_data/' + folder_name + '/image{}.jpg'.format(str(j))
             urllib.request.urlretrieve(pictures[j], filename)
 
 
 def parse_percentage(str):
+    '''
+    Removes the percentage sign from a string and converts it to an integer
+    Used to parse critic reviews
+    '''
     return int(str.strip('%'))
 
 
@@ -222,6 +238,6 @@ if __name__ == "__main__":
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
         length = len(game_info['pictures'])
-        epicgames.scrape_images(id, game_info['pictures'] , length)
+        epicgames.scrape_images(id, game_info['pictures'])
     
     print('Finished scraping pages')

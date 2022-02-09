@@ -84,6 +84,19 @@ class Scraper:
 
     @staticmethod
     def scrape_page_info(url):
+        '''
+        This is a static method that scrapes the useful information 
+        of an epicgames.com game's url
+
+        Args: url(string) the url that the user wishes to scrape.
+        Though this is passed in via the method in main.
+
+        Returns: game_dict(dictionary) A dictionary of useful attributes.
+        Namely the title; the current and previous
+        prices with the discount, if applicable;
+        critics review scores; the name of the developer;
+        the name of the publisher; the game's release date; and a list of photo urls
+        '''
         html = requests.get(url).text
         page = BeautifulSoup(html, 'html.parser')
 
@@ -158,12 +171,20 @@ class Scraper:
             pictures = []
 
         # Return a dictionary of all useful page details
-        return {'title': title, 'discounted from price': reduced_from_price,
+        game_dict = {'title': title, 'discounted from price': reduced_from_price,
                 'price': price, 'developer': developer, 'publisher': publisher,
                 'genre': genre_list, 'release date': release_date_as_datetime,
                 'critics recommend': critic_recommend,
                 'critic top average': critic_top_average,
                 'pictures': pictures}
+        
+        return game_dict
+    
+    @staticmethod
+    def scrape_images(folder_name, pictures, length):
+        for j in range(length):
+            filename = './raw_data/' + folder_name + '/image{}.jpg'.format(str(j))
+            urllib.request.urlretrieve(pictures[j], filename)
 
 
 def parse_percentage(str):
@@ -189,17 +210,18 @@ if __name__ == "__main__":
     Path('./raw_data').mkdir(parents=True, exist_ok=True)
 
     for i in range(len(id_links)):
-        Path('./raw_data/' + str(id_links[i]['id'])
+        id = str(id_links[i]['id'])
+        url = id_links[i]['url']
+        Path('./raw_data/' + id
              ).mkdir(parents=True, exist_ok=True)
         game_info = epicgames.scrape_page_info(
-            id_links[i]['url'])
+            url)
         filename = './raw_data/' + \
-            str(id_links[i]['id']) + '/' + 'data.json'
+            id + '/' + 'data.json'
         f = open(filename, 'x')
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
-        for j in range(len(game_info['pictures'])):
-            filename = './raw_data/' + str(id_links[i]['id']) + '/image{}.jpg'.format(str(j))
-            urllib.request.urlretrieve(game_info['pictures'][j], filename)
+        length = len(game_info['pictures'])
+        epicgames.scrape_images(id, game_info['pictures'] , length)
     
     print('Finished scraping pages')

@@ -181,7 +181,7 @@ class Scraper:
         return game_dict
     
     @staticmethod
-    def scrape_images(folder_name, pictures, length):
+    def scrape_images(folder_name, pictures):
         '''
         This is a static method used to scrape images and store them
         in the same folder is their respective json files
@@ -223,21 +223,20 @@ if __name__ == "__main__":
     for i in range(len(list_of_games)):
         id_links.append({'url': list_of_games[i], 'id': str(uuid.uuid4())})
 
+    #create a folder to store the data
     Path('./raw_data').mkdir(parents=True, exist_ok=True)
 
     for i in range(len(id_links)):
-        id = str(id_links[i]['id'])
         url = id_links[i]['url']
-        Path('./raw_data/' + id
-             ).mkdir(parents=True, exist_ok=True)
         game_info = epicgames.scrape_page_info(
             url)
+        id = str(id_links[i]['id'])
+        Path('./raw_data/' + id
+             ).mkdir(parents=True, exist_ok=True)
         filename = './raw_data/' + \
             id + '/' + 'data.json'
-        f = open(filename, 'x')
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
-        length = len(game_info['pictures'])
         epicgames.scrape_images(id, game_info['pictures'])
     
     print('Finished scraping pages')

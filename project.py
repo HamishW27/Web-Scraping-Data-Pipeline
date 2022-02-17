@@ -67,18 +67,32 @@ class Scraper:
         Returns:
             self.links: A list of urls (str) pertaining to each individual game
         '''
-        self.driver.get(self.webpage)
 
-        time.sleep(10)
+        webpages = [self.webpage + '&count=100&start=' + str(i*100) for i in range(0,11)]
+
+        self.driver.get(webpages[0])
+        time.sleep(20)
         Scraper.accept_cookies(self.driver)
-        time.sleep(30)
+        time.sleep(20)
 
         game_list = self.driver.find_elements(By.XPATH,
-            '//*[@class="css-1jx3eyg"]')
+                '//*[@class="css-1jx3eyg"]')
 
         for game in game_list:
             link = game.get_attribute('href')
             self.links.append(link)
+
+
+        for webpage in webpages[1:]:
+            self.driver.get(webpage)         
+            time.sleep(20)
+
+            game_list = self.driver.find_elements(By.XPATH,
+                '//*[@class="css-1jx3eyg"]')
+
+            for game in game_list:
+                link = game.get_attribute('href')
+                self.links.append(link)
 
         return self.links
 
@@ -210,7 +224,7 @@ def parse_percentage(str):
 if __name__ == "__main__":
     epicgames = Scraper(
         'https://www.epicgames.com/store/en-US/'
-        'browse?sortBy=releaseDate&sortDir=DESC&count=1000')
+        'browse?sortBy=releaseDate&sortDir=DESC')
     list_of_games = epicgames.get_links()
     print('Finished generating links')
 

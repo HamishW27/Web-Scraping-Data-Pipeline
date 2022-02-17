@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 from bs4 import BeautifulSoup
 import urllib.request
-
+from selenium.webdriver.common.by import By
 
 class Scraper:
     '''
@@ -55,7 +55,7 @@ class Scraper:
         Returns:
             None
         '''
-        accept_cookies_button = driver.find_element_by_xpath(
+        accept_cookies_button = driver.find_element(By.XPATH,
             '//*[@id="onetrust-accept-btn-handler"]')
         accept_cookies_button.click()
 
@@ -69,11 +69,11 @@ class Scraper:
         '''
         self.driver.get(self.webpage)
 
-        time.sleep(5)
+        time.sleep(10)
         Scraper.accept_cookies(self.driver)
-        time.sleep(20)
+        time.sleep(30)
 
-        game_list = self.driver.find_elements_by_xpath(
+        game_list = self.driver.find_elements(By.XPATH,
             '//*[@class="css-1jx3eyg"]')
 
         for game in game_list:

@@ -71,9 +71,9 @@ class Scraper:
         webpages = [self.webpage + '&count=100&start=' + str(i*100) for i in range(0,11)]
 
         self.driver.get(webpages[0])
-        time.sleep(20)
+        time.sleep(10)
         Scraper.accept_cookies(self.driver)
-        time.sleep(20)
+        time.sleep(10)
 
         game_list = self.driver.find_elements(By.XPATH,
                 '//*[@class="css-1jx3eyg"]')
@@ -85,7 +85,7 @@ class Scraper:
 
         for webpage in webpages[1:]:
             self.driver.get(webpage)         
-            time.sleep(20)
+            time.sleep(10)
 
             game_list = self.driver.find_elements(By.XPATH,
                 '//*[@class="css-1jx3eyg"]')
@@ -181,6 +181,9 @@ class Scraper:
                                        ).find_all(
                 attrs={'data-component': "Picture"})
             pictures = [i.find('img').get('src') for i in dirty_pictures]
+            pictures = [pic for pic in pictures if not pic.
+            startswith('https://catalogadmin')]
+            #solves issue with picture scraping
         except Exception:
             pictures = []
 

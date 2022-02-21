@@ -212,7 +212,7 @@ class Scraper:
             None
         '''
         for j in range(len(pictures)):
-            filename = './raw_data/' + folder_name + '/image{}.jpg'.format(str(j))
+            filename = './raw_data/' + folder_name + '/images/image{}.jpg'.format(str(j))
             urllib.request.urlretrieve(pictures[j], filename)
 
 

@@ -70,22 +70,13 @@ class Scraper:
 
         webpages = [self.webpage + '&count=100&start=' + str(i*100) for i in range(0,11)]
 
-        self.driver.get(webpages[0])
-        time.sleep(10)
-        Scraper.accept_cookies(self.driver)
-        time.sleep(10)
-
-        game_list = self.driver.find_elements(By.XPATH,
-                '//*[@class="css-1jx3eyg"]')
-
-        for game in game_list:
-            link = game.get_attribute('href')
-            self.links.append(link)
-
-
-        for webpage in webpages[1:]:
-            self.driver.get(webpage)         
+        for webpage in range(len(webpages)):
+            self.driver.get(webpages[webpage])         
             time.sleep(10)
+
+            if webpage == 0:
+                Scraper.accept_cookies(self.driver)
+                time.sleep(10)
 
             game_list = self.driver.find_elements(By.XPATH,
                 '//*[@class="css-1jx3eyg"]')
@@ -212,7 +203,7 @@ class Scraper:
             None
         '''
         for j in range(len(pictures)):
-            filename = './raw_data/' + folder_name + '/images/image{}.jpg'.format(str(j))
+            filename = './raw_data/' + folder_name + '/images/{}.jpg'.format(str(j))
             urllib.request.urlretrieve(pictures[j], filename)
 
 
@@ -249,6 +240,8 @@ if __name__ == "__main__":
             url)
         id = str(id_links[i]['id'])
         Path('./raw_data/' + id
+             ).mkdir(parents=True, exist_ok=True)
+        Path('./raw_data/' + id + '/images'
              ).mkdir(parents=True, exist_ok=True)
         filename = './raw_data/' + \
             id + '/' + 'data.json'

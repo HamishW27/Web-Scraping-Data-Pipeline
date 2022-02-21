@@ -183,7 +183,7 @@ class Scraper:
 
         # Return a dictionary of all useful page details
         game_dict = {'uuid': uuid, 'url': url, 'title': title, 'discounted from price': reduced_from_price,
-                'price': price, 'developer': developer, 'publisher': publisher,
+                'price': price, 'discount': discount, 'developer': developer, 'publisher': publisher,
                 'genre': genre_list, 'release date': release_date_as_datetime,
                 'critics recommend': critic_recommend,
                 'critic top average': critic_top_average,

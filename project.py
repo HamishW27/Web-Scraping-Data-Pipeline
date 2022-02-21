@@ -123,6 +123,7 @@ class Scraper:
             discount, reduced_from_price, price = None, None, price_layout[1]
         else:
             discount, reduced_from_price, price = price_layout
+            discount = parse_percentage(discount)
 
         # Scrape the developer, publisher, and release date from a
         # sidebar element

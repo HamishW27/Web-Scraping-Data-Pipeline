@@ -105,7 +105,8 @@ class Scraper:
         html = requests.get(url).text
         page = BeautifulSoup(html, 'html.parser')
 
-        uuid = next(item for item in id_links if item["url"] == url)['id']
+        uuid = next(item for item in id_links if item["url"] == url
+        )['id']
 
         # Scrape the title and the price changes individually
         title = page.find(attrs={'data-component': "PDPTitleHeader"}).text

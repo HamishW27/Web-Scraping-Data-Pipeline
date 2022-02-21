@@ -105,6 +105,9 @@ class Scraper:
         html = requests.get(url).text
         page = BeautifulSoup(html, 'html.parser')
 
+        # %%
+        uuid = next(item for item in id_links if item["url"] == url)['id']
+
         # Scrape the title and the price changes individually
         title = page.find(attrs={'data-component': "PDPTitleHeader"}).text
         try:
@@ -179,7 +182,7 @@ class Scraper:
             pictures = []
 
         # Return a dictionary of all useful page details
-        game_dict = {'title': title, 'discounted from price': reduced_from_price,
+        game_dict = {'uuid': uuid,'title': title, 'discounted from price': reduced_from_price,
                 'price': price, 'developer': developer, 'publisher': publisher,
                 'genre': genre_list, 'release date': release_date_as_datetime,
                 'critics recommend': critic_recommend,

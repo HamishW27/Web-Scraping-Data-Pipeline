@@ -40,7 +40,7 @@ class Scraper:
         options = Options()
         options.headless = True
         self.webpage = webpage
-        self.driver = webdriver.Firefox(options=options)
+        self.driver = webdriver.Chrome(options=options)
         self.links = []
 
     @staticmethod
@@ -73,11 +73,11 @@ class Scraper:
 
         for webpage in tqdm(range(len(webpages))):
             self.driver.get(webpages[webpage])         
-            time.sleep(10)
+            time.sleep(5)
 
             if webpage == 0:
                 Scraper.accept_cookies(self.driver)
-                time.sleep(10)
+                time.sleep(5)
 
             game_list = self.driver.find_elements(By.XPATH,
                 '//*[@class="css-1jx3eyg"]')
@@ -219,6 +219,12 @@ def parse_percentage(str):
     '''
     return int(str.strip('%'))
 
+def create_folders(id):
+    Path('./raw_data/' + id
+             ).mkdir(parents=True, exist_ok=True)
+        Path('./raw_data/' + id + '/images'
+             ).mkdir(parents=True, exist_ok=True)
+
 
 if __name__ == "__main__":
     epicgames = Scraper(
@@ -244,10 +250,7 @@ if __name__ == "__main__":
         game_info = epicgames.scrape_page_info(
             url)
         id = str(id_links[i]['id'])
-        Path('./raw_data/' + id
-             ).mkdir(parents=True, exist_ok=True)
-        Path('./raw_data/' + id + '/images'
-             ).mkdir(parents=True, exist_ok=True)
+        create_folders(id)
         filename = './raw_data/' + \
             id + '/' + 'data.json'
         with open(filename, 'w') as f:

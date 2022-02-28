@@ -222,7 +222,7 @@ def parse_percentage(str):
 def create_folders(id):
     Path('./raw_data/' + id
              ).mkdir(parents=True, exist_ok=True)
-        Path('./raw_data/' + id + '/images'
+    Path('./raw_data/' + id + '/images'
              ).mkdir(parents=True, exist_ok=True)
 
 

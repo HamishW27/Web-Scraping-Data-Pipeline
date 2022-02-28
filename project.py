@@ -19,6 +19,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 import urllib.request
 from selenium.webdriver.common.by import By
+from tqdm import tqdm
 
 class Scraper:
     '''
@@ -39,7 +40,7 @@ class Scraper:
         options = Options()
         options.headless = True
         self.webpage = webpage
-        self.driver = webdriver.Chrome(options=options)
+        self.driver = webdriver.Firefox(options=options)
         self.links = []
 
     @staticmethod
@@ -70,7 +71,7 @@ class Scraper:
 
         webpages = [self.webpage + '&count=100&start=' + str(i*100) for i in range(0,11)]
 
-        for webpage in range(len(webpages)):
+        for webpage in tqdm(range(len(webpages))):
             self.driver.get(webpages[webpage])         
             time.sleep(10)
 
@@ -238,7 +239,7 @@ if __name__ == "__main__":
     #create a folder to store the data
     Path('./raw_data').mkdir(parents=True, exist_ok=True)
 
-    for i in range(len(id_links)):
+    for i in tqdm(range(len(id_links))):
         url = id_links[i]['url']
         game_info = epicgames.scrape_page_info(
             url)

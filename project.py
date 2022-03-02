@@ -29,6 +29,21 @@ import boto3
 from sqlalchemy import create_engine
 from certification import *
 
+'''
+For security, this program requires a file named certification.py 
+formatted as follows in this same directory:
+
+from sqlalchemy import create_engine
+DATABASE_TYPE = 'postgresql'
+DBAPI = 'psycopg2'
+ENDPOINT = #Name of AWS Endpoint
+USER = 'postgres'
+PASSWORD = #RDS User Password
+PORT = 5432
+DATABASE = 'postgres'
+engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
+'''
+
 class Scraper:
     '''
     This is the Scraper function. It is used to scrape urls from the
@@ -243,6 +258,13 @@ def find_existing_table(table_name, column_name):
     except:
         return []
 
+def find_existing_images(table_name, column_name):
+    images = find_existing_table(table_name, column_name)
+    images = [a.strip('{').strip('}') for a in images]
+    images = [a.split(',') for a in images]
+
+    return flatten(images)
+
 def read_into_table(json_location):
     file_list = []
 
@@ -290,6 +312,7 @@ def uploadDirectory(path,bucketname):
 
 if __name__ == "__main__":
     existing_urls = find_existing_table('games', 'url')
+    existing_images = find_existing_images('games', 'pictures')
     epicgames = Scraper(
         'https://www.epicgames.com/store/en-US/'
         'browse?sortBy=releaseDate&sortDir=DESC')
@@ -310,7 +333,12 @@ if __name__ == "__main__":
 
     for i in tqdm(range(len(id_links)), desc='Scraping pages'):
         url = id_links[i]['url']
-        if url in existing_urls:
+        images = game_info['pictures']
+        images_in_table = all(image in existing_images for image in images)
+        if url in existing_urls and images_in_table:
+            continue
+        elif url in existing_urls:
+            epicgames.scrape_images(id, game_info['pictures'])
             continue
         game_info = epicgames.scrape_page_info(
         url)
@@ -320,7 +348,7 @@ if __name__ == "__main__":
             id + '/' + 'data.json'
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
-        epicgames.scrape_images(id, game_info['pictures'])
+            
     
     print('Finished scraping pages')
 

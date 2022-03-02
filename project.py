@@ -257,13 +257,6 @@ def find_existing_table(table_name, column_name):
     except:
         return []
 
-def find_existing_images(table_name, column_name):
-    images = find_existing_table(table_name, column_name)
-    images = [a.strip('{').strip('}') for a in images]
-    images = [a.split(',') for a in images]
-
-    return flatten(images)
-
 def read_into_table(json_location):
     file_list = []
 
@@ -311,7 +304,6 @@ def uploadDirectory(path,bucketname):
 
 if __name__ == "__main__":
     existing_urls = find_existing_table('games', 'url')
-    existing_images = find_existing_images('games', 'pictures')
     epicgames = Scraper(
         'https://www.epicgames.com/store/en-US/'
         'browse?sortBy=releaseDate&sortDir=DESC')
@@ -332,17 +324,13 @@ if __name__ == "__main__":
 
     for i in tqdm(range(len(id_links)), desc='Scraping pages'):
         url = id_links[i]['url']
-        images = game_info['pictures']
-        images_in_table = all(image in existing_images for image in images)
-        if url in existing_urls and images_in_table:
+        if url in existing_urls:
             continue
-        if url in existing_urls and images_in_table == False:
-            game_info = epicgames.scrape_page_info(
-            url, id_links)
-            id = str(id_links[i]['id'])
-            create_folders(id)
-            epicgames.scrape_images(id, game_info['pictures'])
-            continue
+        game_info = epicgames.scrape_page_info(
+        url, id_links)
+        id = str(id_links[i]['id'])
+        create_folders(id)
+        epicgames.scrape_images(id, game_info['pictures'])
         filename = './raw_data/' + \
             id + '/' + 'data.json'
         with open(filename, 'w') as f:

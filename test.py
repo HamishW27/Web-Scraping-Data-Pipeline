@@ -4,7 +4,7 @@ import unittest
 
 class TestLinks(unittest.TestCase):
 
-    def test_links(self):
+    def test_get_links(self):
         epicgames = Scraper(
         'https://www.epicgames.com/store/en-US/'
         'browse?sortBy=releaseDate&sortDir=DESC&count=1000')
@@ -30,9 +30,10 @@ class TestLinks(unittest.TestCase):
         url_table = find_existing_table('games','url')
         self.assertIsInstance(url_table, list)
     
-    def test_find_existing_images(self):
-        image_table = find_existing_images('games','url')
-        self.assertIsInstance(image_table, list)
+    def test_read_into_table(self):
+        json_file = "raw_data/*/*.json"
+        expected_file = read_into_table(json_file)
+        self.assertIsInstance(expected_file, pd.DataFrame)
 
 if __name__ == '__main__':
     unittest.main(argv=[''], verbosity=0, exit=False)

@@ -112,7 +112,7 @@ class Scraper:
         return self.links
 
     @staticmethod
-    def scrape_page_info(url):
+    def scrape_page_info(url, url_and_ids):
         '''
         This is a static method that scrapes the useful information 
         of an epicgames.com game's url
@@ -129,7 +129,7 @@ class Scraper:
         html = requests.get(url).text
         page = BeautifulSoup(html, 'html.parser')
 
-        uuid = next(item for item in id_links if item["url"] == url
+        uuid = next(item for item in url_and_ids if item["url"] == url
         )['id']
 
         # Scrape the title and the price changes individually
@@ -338,7 +338,7 @@ if __name__ == "__main__":
             continue
         if url in existing_urls and images_in_table == False:
             game_info = epicgames.scrape_page_info(
-            url)
+            url, id_links)
             id = str(id_links[i]['id'])
             create_folders(id)
             epicgames.scrape_images(id, game_info['pictures'])

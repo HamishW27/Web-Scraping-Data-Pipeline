@@ -20,6 +20,14 @@ from bs4 import BeautifulSoup
 import urllib.request
 from selenium.webdriver.common.by import By
 from tqdm import tqdm
+import glob
+import os
+import re
+import pandas as pd
+import json
+import boto3
+from sqlalchemy import create_engine
+from certification import *
 
 class Scraper:
     '''
@@ -71,7 +79,7 @@ class Scraper:
 
         webpages = [self.webpage + '&count=100&start=' + str(i*100) for i in range(0,11)]
 
-        for webpage in tqdm(range(len(webpages))):
+        for webpage in tqdm(range(len(webpages)), desc='Getting page links'):
             self.driver.get(webpages[webpage])         
             time.sleep(5)
 
@@ -225,8 +233,63 @@ def create_folders(id):
     Path('./raw_data/' + id + '/images'
              ).mkdir(parents=True, exist_ok=True)
 
+def flatten(t):
+    return [item for sublist in t for item in sublist]
+
+def find_existing_table(table_name, column_name):
+    try:
+        ids = pd.read_sql_table(table_name, engine, columns=[column_name])
+        return flatten(ids.values.tolist())
+    except:
+        return []
+
+def read_into_table(json_location):
+    file_list = []
+
+    os.listdir()
+    for file in glob.glob(json_location):
+        file_list.append(file)
+    
+    dfs = [] # an empty list to store the data frames
+    
+    for file in file_list:
+        with open(file) as json_file:
+            data = json.load(json_file)
+            df = pd.json_normalize(data)
+            dfs.append(df)
+
+    game_df = pd.concat(dfs, ignore_index=True)
+    return game_df
+
+def upload_table(df_name, output_name):
+    df_name.to_sql(output_name, engine, if_exists='replace')
+
+def read_photos_into_table(json_dataframe):
+    dfs = []
+    for index, row in json_dataframe.iterrows():
+        id = row['uuid']
+        pictures = row['pictures']
+        filenames = sorted(glob.glob("raw_data/{}/images/*.jpg".format(id)))
+        for num, picture in enumerate(pictures):
+            game_uuid = re.sub('/images/.*\.jpg','',filenames[num])
+            game_uuid = re.sub('raw_data/','', game_uuid)
+            df_part = {'photo_uuid':uuid.uuid4(), 'url':picture, 'img_name':filenames[num], 'game_uuid':game_uuid}
+            df_part = pd.DataFrame(df_part, index=[0])
+            dfs.append(df_part)
+        
+    picture_df = pd.concat(dfs, ignore_index=True)
+
+    return picture_df
+
+def uploadDirectory(path,bucketname):
+    s3_client = boto3.client('s3')
+    s3 = boto3.resource('s3')
+    for root,dirs,files in os.walk(path):
+        for file in files:
+            s3_client.upload_file(os.path.join(root,file),bucketname,file)
 
 if __name__ == "__main__":
+    existing_urls = find_existing_table('games', 'url')
     epicgames = Scraper(
         'https://www.epicgames.com/store/en-US/'
         'browse?sortBy=releaseDate&sortDir=DESC')
@@ -245,10 +308,12 @@ if __name__ == "__main__":
     #create a folder to store the data
     Path('./raw_data').mkdir(parents=True, exist_ok=True)
 
-    for i in tqdm(range(len(id_links))):
+    for i in tqdm(range(len(id_links)), desc='Scraping pages'):
         url = id_links[i]['url']
+        if url in existing_urls:
+            continue
         game_info = epicgames.scrape_page_info(
-            url)
+        url)
         id = str(id_links[i]['id'])
         create_folders(id)
         filename = './raw_data/' + \
@@ -258,3 +323,15 @@ if __name__ == "__main__":
         epicgames.scrape_images(id, game_info['pictures'])
     
     print('Finished scraping pages')
+
+    game_dataframe = read_into_table("raw_data/*/*.json")
+    upload_table(game_dataframe, 'games')
+
+    photo_dataframe = read_photos_into_table(game_dataframe)
+    upload_table(photo_dataframe, 'images')
+
+    print('Tables uploaded')
+
+    #uploadDirectory('raw_data', 'aicorescraperhamishw')
+
+    print('Files uploaded to S3')

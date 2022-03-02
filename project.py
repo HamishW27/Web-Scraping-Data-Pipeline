@@ -234,7 +234,6 @@ class Scraper:
             filename = './raw_data/' + folder_name + '/images/{}.jpg'.format(str(j))
             urllib.request.urlretrieve(pictures[j], filename)
 
-
 def parse_percentage(str):
     '''
     Removes the percentage sign from a string and converts it to an integer
@@ -337,18 +336,17 @@ if __name__ == "__main__":
         images_in_table = all(image in existing_images for image in images)
         if url in existing_urls and images_in_table:
             continue
-        elif url in existing_urls:
+        if url in existing_urls and images_in_table == False:
+            game_info = epicgames.scrape_page_info(
+            url)
+            id = str(id_links[i]['id'])
+            create_folders(id)
             epicgames.scrape_images(id, game_info['pictures'])
             continue
-        game_info = epicgames.scrape_page_info(
-        url)
-        id = str(id_links[i]['id'])
-        create_folders(id)
         filename = './raw_data/' + \
             id + '/' + 'data.json'
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
-            
     
     print('Finished scraping pages')
 

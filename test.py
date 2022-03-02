@@ -1,5 +1,5 @@
-from project import Scraper
-from project import parse_percentage
+from typing import List
+from project import *
 import unittest
 
 
@@ -13,13 +13,21 @@ class TestLinks(unittest.TestCase):
         actual_items = epicgames.get_links()
         self.assertIn(expected_item, actual_items)
     
-    def test_scrape_page_info(self):
-        url = 'https://www.epicgames.com/store/en-US/p/grand-theft-auto-v'
-        actual_items = Scraper.scrape_page_info(url)
-        self.assertEqual('Grand Theft Auto V', actual_items['title'])
-    
     def test_parse_percentage(self):
         self.assertEqual(parse_percentage('90%'), 90, 'Should be an integer 90')
+
+    def test_flatten(self):
+        example_list = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        flattened_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        self.assertEqual(flatten(example_list), flattened_list)
+    
+    def test_find_existing_table(self):
+        url_table = find_existing_table('games','url')
+        self.assertIsInstance(url_table, List)
+    
+    def test_find_existing_images(self):
+        image_table = find_existing_images('games','url')
+        self.assertIsInstance(image_table, List)
 
 if __name__ == '__main__':
     unittest.main(argv=[''], verbosity=0, exit=False)

@@ -342,7 +342,7 @@ def upload_table(df_name, output_name):
     Returns:
         None 
     '''
-    df_name.to_sql(output_name, engine, if_exists='replace')
+    df_name.to_sql(output_name, engine, if_exists='append')
 
 def read_photos_into_table(json_dataframe):
     '''

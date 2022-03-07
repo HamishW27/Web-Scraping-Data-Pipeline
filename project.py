@@ -89,7 +89,7 @@ class Scraper:
         games in the Epic Games Store
 
         Returns:
-            self.links: A list of urls (str) pertaining to each individual game
+            self.links(List): A list of urls (str) pertaining to each individual game
         '''
 
         webpages = [self.webpage + '&count=100&start=' + str(i*100) for i in range(0,11)]
@@ -117,14 +117,16 @@ class Scraper:
         This is a static method that scrapes the useful information 
         of an epicgames.com game's url
 
-        Args: url(string) the url that the user wishes to scrape.
-        Though this is passed in via the method in main.
+        Args: 
+            url(string): the url that the user wishes to scrape.
+            Though this is passed in via the method in main.
 
-        Returns: game_dict(dictionary) A dictionary of useful attributes.
-        Namely the title; the current and previous
-        prices with the discount, if applicable;
-        critics review scores; the name of the developer;
-        the name of the publisher; the game's release date; and a list of photo urls
+        Returns: 
+            game_dict(dictionary): A dictionary of useful attributes.
+            Namely the title; the current and previous
+            prices with the discount, if applicable;
+            critics review scores; the name of the developer;
+            the name of the publisher; the game's release date; and a list of photo urls
         '''
         html = requests.get(url).text
         page = BeautifulSoup(html, 'html.parser')
@@ -238,19 +240,61 @@ def parse_percentage(str):
     '''
     Removes the percentage sign from a string and converts it to an integer
     Used to parse critic reviews
+
+    Args:
+        str(string): A string pertaining to a review as a percent
+        containing ampersand(s)
+    
+    Returns:
+        int(str.strip('%'))(Integer): An integer equal to the 
+        numerical representation of the percentage of str
     '''
     return int(str.strip('%'))
 
 def create_folders(id):
+    '''
+    Function used to generate folders in the filesystem in which to
+    store the images and json file of the scraped webpage
+
+    Args:
+        id(string): UUID4 as string
+    
+    Returns:
+        None
+    '''
     Path('./raw_data/' + id
              ).mkdir(parents=True, exist_ok=True)
     Path('./raw_data/' + id + '/images'
              ).mkdir(parents=True, exist_ok=True)
 
 def flatten(t):
+    '''
+    Function to 'flatten' a list ie. to generate a single list of items 
+    from a list of lists containing multiple items 
+
+    Args:
+        t(List): A list containing multiple lists
+    
+    Returns:
+        Unnamed(List): A List of items within the
+        lists inside of the list in the argument
+    '''
     return [item for sublist in t for item in sublist]
 
 def find_existing_table(table_name, column_name):
+    '''
+    Finds a column of ids in a database using the
+    SQLAlchemy engine imported from certification.py
+
+    Args:
+        table_name (string): The name of the table in the
+        database in which the column of ids is stored
+        column_name (string): The name of the column within the database
+        in which the ids are stored
+    
+    Returns:
+        Unnamed(List): A list of the ids of games stored in the database
+    '''
     try:
         ids = pd.read_sql_table(table_name, engine, columns=[column_name])
         return flatten(ids.values.tolist())
@@ -258,6 +302,18 @@ def find_existing_table(table_name, column_name):
         return []
 
 def read_into_table(json_location):
+    '''
+    Generates a database from locally stored files to ensure that 
+    duplicate files are not scraped in the interest of reducing runtime
+
+    Args:
+        json_location(string): The location of the raw_data folder 
+        in which json files and images are stored
+    
+    Returns:
+        game_df(pandas.DataFrame): A Dataframe containing all the info
+        scraped about every game whos files exist locally
+    '''
     file_list = []
 
     os.listdir()
@@ -276,9 +332,32 @@ def read_into_table(json_location):
     return game_df
 
 def upload_table(df_name, output_name):
+    '''
+    Uploads a dataframe to a database
+
+    Args:
+        df_name(pd.Dataframe): The name of the dataframe to be uploaded
+        output_name(string): The name to give to the table being uploaded
+
+    Returns:
+        None 
+    '''
     df_name.to_sql(output_name, engine, if_exists='replace')
 
 def read_photos_into_table(json_dataframe):
+    '''
+    Reads scraped local image data into a dataframe
+
+    Args:
+        json_dataframe(pd.Dataframe): The name of the 'games' table
+        in the database containing local image data. 
+        This is used to create a table of images
+    
+    Returns:
+        picture_df(pd.Dataframe): A table of information about the images
+        scraped containing ids, urls, image names, and the id of the 
+        game they belong to
+    '''
     dfs = []
     for index, row in json_dataframe.iterrows():
         id = row['uuid']
@@ -294,13 +373,6 @@ def read_photos_into_table(json_dataframe):
     picture_df = pd.concat(dfs, ignore_index=True)
 
     return picture_df
-
-def uploadDirectory(path,bucketname):
-    s3_client = boto3.client('s3')
-    s3 = boto3.resource('s3')
-    for root,dirs,files in os.walk(path):
-        for file in files:
-            s3_client.upload_file(os.path.join(root,file),bucketname,file)
 
 if __name__ == "__main__":
     existing_urls = find_existing_table('games', 'url')
@@ -345,7 +417,3 @@ if __name__ == "__main__":
     upload_table(photo_dataframe, 'images')
 
     print('Tables uploaded')
-
-    #uploadDirectory('raw_data', 'aicorescraperhamishw')
-
-    print('Files uploaded to S3')

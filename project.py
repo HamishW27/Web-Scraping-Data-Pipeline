@@ -394,6 +394,7 @@ if __name__ == "__main__":
     #create a folder to store the data
     Path('./raw_data').mkdir(parents=True, exist_ok=True)
 
+    #scrape each page and download the information
     for i in tqdm(range(len(id_links)), desc='Scraping pages'):
         url = id_links[i]['url']
         if url in existing_urls:

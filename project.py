@@ -420,7 +420,7 @@ if __name__ == "__main__":
     try:
         photo_dataframe = read_photos_into_table(game_dataframe)
         upload_table(photo_dataframe, 'images')
-    except ValueError:
+    except NameError:
         print('Nothing new to add')
 
     print('Tables uploaded')

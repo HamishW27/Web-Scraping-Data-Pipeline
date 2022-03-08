@@ -415,12 +415,12 @@ if __name__ == "__main__":
         game_dataframe = read_into_table("./raw_data/*/*.json")
         upload_table(game_dataframe, 'games')
     except ValueError:
-        print('Nothing new to add')
+        print('No new games to add')
     
     try:
         photo_dataframe = read_photos_into_table(game_dataframe)
         upload_table(photo_dataframe, 'images')
     except NameError:
-        print('Nothing new to add')
+        print('No new images to add')
 
     print('Tables uploaded')

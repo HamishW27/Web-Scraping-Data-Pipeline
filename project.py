@@ -312,7 +312,7 @@ def read_into_table(json_location):
     
     Returns:
         game_df(pandas.DataFrame): A Dataframe containing all the info
-        scraped about every game whos files exist locally
+        scraped about every game whose files exist locally
     '''
     file_list = []
 

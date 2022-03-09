@@ -1,10 +1,10 @@
 # Web-Scraping-Data-Pipeline
 
-> This is a Web Scraper built with selenium and bs4. Its goal is to download information on the games in the Epicgames Store.  
+> This is a Web Scraper built with selenium and bs4. Its goal is to download information on the games in the Epic Games Store.  
 
 ## Milestone 1
 
-- The Selenium webdriver is used to scrape the list of games that the Epicgames store provides. I wish to use this knowledge to find trends in genre over time as well as to track price changes. The scraper can be run inside of a docker container available at Dockerhub.
+- The Selenium webdriver is used to scrape the list of games that the Epic Games store provides. I wish to use this knowledge to find trends in genre over time as well as to track price changes. The scraper can be run inside of a docker container available at Docker Hub.
 
 ```python
 class Scraper:
@@ -18,7 +18,7 @@ class Scraper:
 
 ## Milestone 2
 
-- Now that the list of games has been scraped, BeautifulSoup is used to constrict a dictionary of useful infomration about each game. This is preferable to using Selenium as the data is contained in the html file of each game's page and therefore establishing a connection to each webpage is redundant and costs time. 
+- Now that the list of games has been scraped, BeautifulSoup is used to constrict a dictionary of useful information about each game. This is preferable to using Selenium as the data is contained in the html file of each game's page and therefore establishing a connection to each webpage is redundant and costs time. 
 
 ```python
 @staticmethod
@@ -38,4 +38,18 @@ class Scraper:
             critics review scores; the name of the developer;
             the name of the publisher; the game's release date; and a list of photo urls
         '''
+```
+
+## Milestone 3
+
+- Introduced a test.py file to run unit tests. These test that the functions return specific expected links or file types.
+
+```python
+def test_get_links(self):
+        epicgames = Scraper(
+        'https://www.epicgames.com/store/en-US/'
+        'browse?sortBy=releaseDate&sortDir=DESC&count=1000')
+        expected_item = 'https://www.epicgames.com/store/en-US/p/grand-theft-auto-v'
+        actual_items = epicgames.get_links()
+        self.assertIn(expected_item, actual_items)
 ```

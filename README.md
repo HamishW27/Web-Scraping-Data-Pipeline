@@ -42,7 +42,15 @@ class Scraper:
 
 ## Milestone 3
 
-- Used urllib and pandas to download images and json information and store it in the filesystem.
+- Used urllib and pandas to download images and json information and store them within the filesystem. Path was used to create appropriate directories.
+
+```python
+def create_folders(id):
+    Path('./raw_data/' + id
+             ).mkdir(parents=True, exist_ok=True)
+    Path('./raw_data/' + id + '/images'
+             ).mkdir(parents=True, exist_ok=True)
+```
 
 ## Milestone 4
 
@@ -57,3 +65,7 @@ def test_get_links(self):
         actual_items = epicgames.get_links()
         self.assertIn(expected_item, actual_items)
 ```
+
+## Milestone 5 
+
+- Added methods to scalably store data using AWS. Files detailing information about images and games are uploaded to RDS and actual files are backed up to S3. Tables are constructed using SQLAlchemy and pandas dataframes. 

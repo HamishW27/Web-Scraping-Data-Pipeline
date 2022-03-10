@@ -96,7 +96,7 @@ class Scraper:
 
         for webpage in tqdm(range(len(webpages)), desc='Getting page links'):
             self.driver.get(webpages[webpage])         
-            time.sleep(5)
+            time.sleep(10)
 
             #if webpage == 0:
             #    Scraper.accept_cookies(self.driver)
@@ -143,13 +143,16 @@ class Scraper:
         except Exception:
             price_layout = [None, None, None]
 
-        if price_layout[0] == 'Free':
-            discount, reduced_from_price, price = None, None, 0
-        elif len(price_layout) != 3:
-            discount, reduced_from_price, price = None, None, price_layout[1]
-        else:
-            discount, reduced_from_price, price = price_layout
-            discount = parse_percentage(discount)
+        try:
+            if price_layout[0] == 'Free':
+                discount, reduced_from_price, price = None, None, 0
+            elif len(price_layout) != 3:
+                discount, reduced_from_price, price = None, None, price_layout[1]
+            else:
+                discount, reduced_from_price, price = price_layout
+                discount = parse_percentage(discount)
+        except IndexError:
+            discount, reduced_from_price, price = None, None, None
 
         # Scrape the developer, publisher, and release date from a
         # sidebar element
@@ -389,6 +392,7 @@ if __name__ == "__main__":
         'browse?sortBy=releaseDate&sortDir=DESC')
     list_of_games = epicgames.get_links()
     print('Finished generating links')
+    print('Found {} games'.format(len(list_of_games)))
 
     # remove bundles
     my_filter = filter(lambda i: i.startswith(

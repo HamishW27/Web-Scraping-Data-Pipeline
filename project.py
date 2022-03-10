@@ -98,9 +98,9 @@ class Scraper:
             self.driver.get(webpages[webpage])         
             time.sleep(5)
 
-            if webpage == 0:
-                Scraper.accept_cookies(self.driver)
-                time.sleep(5)
+            #if webpage == 0:
+            #    Scraper.accept_cookies(self.driver)
+            #    time.sleep(5)
 
             game_list = self.driver.find_elements(By.XPATH,
                 '//*[@class="css-1jx3eyg"]')

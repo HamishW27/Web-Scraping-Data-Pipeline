@@ -42,6 +42,10 @@ class Scraper:
 
 ## Milestone 3
 
+- Used urllib and pandas to download images and json information and store it in the filesystem.
+
+## Milestone 4
+
 - Introduced a test.py file to run unit tests. These test that the functions return specific expected links or file types.
 
 ```python

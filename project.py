@@ -92,7 +92,7 @@ class Scraper:
             self.links(List): A list of urls (str) pertaining to each individual game
         '''
 
-        webpages = [self.webpage + '&count=100&start=' + str(i*100) for i in range(0,11)]
+        webpages = [self.webpage + '&count=40&start=' + str(i*40) for i in range(0,28)]
 
         for webpage in tqdm(range(len(webpages)), desc='Getting page links'):
             self.driver.get(webpages[webpage])         
@@ -432,7 +432,7 @@ if __name__ == "__main__":
         print('No new images to add')
     
     try:
-        uploadDirectory('raw_data', 'aicorescraperhamishw')
+        uploadDirectory('./raw_data', 'aicorescraperhamishw')
         print('Uploaded data to bucket')
     except Exception:
         print('Nothing to upload')

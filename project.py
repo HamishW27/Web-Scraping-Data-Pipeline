@@ -374,6 +374,14 @@ def read_photos_into_table(json_dataframe):
 
     return picture_df
 
+
+def uploadDirectory(path,bucketname):
+    s3_client = boto3.client('s3')
+    s3 = boto3.resource('s3')
+    for root,dirs,files in os.walk(path):
+        for file in files:
+            s3_client.upload_file(os.path.join(root,file),bucketname,file)
+
 if __name__ == "__main__":
     existing_urls = find_existing_table('games', 'url')
     epicgames = Scraper(
@@ -422,5 +430,12 @@ if __name__ == "__main__":
         upload_table(photo_dataframe, 'images')
     except NameError:
         print('No new images to add')
+    
+    try:
+        uploadDirectory('raw_data', 'aicorescraperhamishw')
+    except Exception:
+        print('Nothing to upload')
+    
+    print('Uploaded data to bucket')
 
     print('Tables uploaded')

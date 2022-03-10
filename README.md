@@ -69,3 +69,16 @@ def test_get_links(self):
 ## Milestone 5 
 
 - Added methods to scalably store data using AWS. Files detailing information about images and games are uploaded to RDS and actual files are backed up to S3. Tables are constructed using SQLAlchemy and pandas dataframes. 
+
+```python
+def upload_table(df_name, output_name):
+    df_name.to_sql(output_name, engine, if_exists='append')
+```
+
+## Milestone 6
+
+- Updated the scraper to run inside of an AWS EC2 instance. This involved rewriting code to decrease memory usage so the program could run on the resources of a micro instance; changing seleniums settings to allow it to run in headless mode; building a docker container to run the python script. Games are compared with data inside of the tables before scraping to reduce runtime and ensure that pages are not scraped twice.
+
+```docker
+docker run -p 5900:5900 --user scraperuser --privileged --shm-size="2g" -w /home/scraperuser hamishw27/egwebscraper:v1
+```

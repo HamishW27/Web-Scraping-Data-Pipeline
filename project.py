@@ -433,9 +433,8 @@ if __name__ == "__main__":
     
     try:
         uploadDirectory('raw_data', 'aicorescraperhamishw')
+        print('Uploaded data to bucket')
     except Exception:
         print('Nothing to upload')
-    
-    print('Uploaded data to bucket')
 
     print('Tables uploaded')

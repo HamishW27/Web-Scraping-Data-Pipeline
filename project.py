@@ -62,6 +62,9 @@ class Scraper:
         '''
         options = Options()
         options.headless = True
+        options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64)  \
+        AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 \
+        Safari/537.36")
         self.webpage = webpage
         self.driver = webdriver.Chrome(options=options)
         self.links = []
@@ -97,10 +100,6 @@ class Scraper:
         for webpage in tqdm(range(len(webpages)), desc='Getting page links'):
             self.driver.get(webpages[webpage])         
             time.sleep(10)
-
-            #if webpage == 0:
-            #    Scraper.accept_cookies(self.driver)
-            #    time.sleep(5)
 
             game_list = self.driver.find_elements(By.XPATH,
                 '//*[@class="css-1jx3eyg"]')
@@ -315,7 +314,7 @@ def read_into_table(json_location):
     
     Returns:
         game_df(pandas.DataFrame): A Dataframe containing all the info
-        scraped about every game whose files exist locally
+        scraped about every game whoKHTMLse files exist locally
     '''
     file_list = []
 

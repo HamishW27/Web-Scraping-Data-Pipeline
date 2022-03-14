@@ -82,3 +82,5 @@ def upload_table(df_name, output_name):
 ```docker
 docker run -p 5900:5900 --user scraperuser --privileged --shm-size="2g" -w /home/scraperuser hamishw27/egwebscraper:v1
 ```
+
+## Milestone 7

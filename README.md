@@ -84,3 +84,15 @@ docker run -p 5900:5900 --user scraperuser --privileged --shm-size="2g" -w /home
 ```
 
 ## Milestone 7
+
+- Enabled Docker metrics and edited the AWS security group to access the data from a computer on a different network. Using prometheus and grafana, the instance and the container can be monitored for usage spikes and help the user to discover errors. This allows the scraper to run uninterrupted on an EC2 instance.
+
+```yaml
+- job_name: docker
+  honor_timestamps: true
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  metrics_path: /metrics
+  scheme: http
+  follow_redirects: true
+```

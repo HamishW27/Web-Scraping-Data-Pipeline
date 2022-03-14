@@ -391,13 +391,13 @@ if __name__ == "__main__":
         'browse?sortBy=releaseDate&sortDir=DESC')
     list_of_games = epicgames.get_links()
     print('Finished generating links')
-    print('Found {} games'.format(len(list_of_games)))
 
     # remove bundles
     my_filter = filter(lambda i: i.startswith(
         'https://www.epicgames.com/store/en-US/p'), list_of_games)
     list_of_games = list(my_filter)
-
+    print('Found {} games'.format(len(list_of_games)))
+    
     id_links = []
     for i in range(len(list_of_games)):
         id_links.append({'url': list_of_games[i], 'id': str(uuid.uuid4())})

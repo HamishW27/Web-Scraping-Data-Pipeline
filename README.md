@@ -96,3 +96,15 @@ docker run -p 5900:5900 --user scraperuser --privileged --shm-size="2g" -w /home
   scheme: http
   follow_redirects: true
 ```
+
+## Milestone 8
+
+The final update to my project involved creating a GitHub action to automate the docker build process. After this the EC2 instance has been automated through the creation of cron jobs to pull the latest image and run the project daily. This means that all that needs to be done manually is to push any future changes to GitHub and this wil in turn update the instance.
+
+```yaml
+name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+```

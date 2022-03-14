@@ -26,4 +26,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/hamishw27/egwebscraper:v1
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/egwebscraper:v1

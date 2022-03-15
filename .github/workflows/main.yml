@@ -25,5 +25,8 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/egwebscraper:v1
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/egwebscraper:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/egwebscraper:buildcache,mode=max

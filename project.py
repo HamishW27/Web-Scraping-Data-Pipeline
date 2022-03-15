@@ -95,14 +95,14 @@ class Scraper:
             self.links(List): A list of urls (str) pertaining to each individual game
         '''
 
-        webpages = [self.webpage + '&count=40&start=' + str(i*40) for i in range(0,28)]
+        webpages = [self.webpage + '&count=40&start=' + str(i*40) for i in range(0,27)]
 
         for webpage in tqdm(range(len(webpages)), desc='Getting page links'):
             self.driver.get(webpages[webpage])         
             time.sleep(10)
 
             game_list = self.driver.find_elements(By.XPATH,
-                '//*[@class="css-1jx3eyg"]')
+            '//*[@data-component="BrowseGrid"]//*[@role="link"]')
 
             for game in game_list:
                 link = game.get_attribute('href')
@@ -379,7 +379,6 @@ def read_photos_into_table(json_dataframe):
 
 def uploadDirectory(path,bucketname):
     s3_client = boto3.client('s3')
-    s3 = boto3.resource('s3')
     for root,dirs,files in os.walk(path):
         for file in files:
             s3_client.upload_file(os.path.join(root,file),bucketname,file)
@@ -394,7 +393,7 @@ if __name__ == "__main__":
 
     # remove bundles
     my_filter = filter(lambda i: i.startswith(
-        'https://www.epicgames.com/store/en-US/p'), list_of_games)
+        'https://store.epicgames.com/en-US/p'), list_of_games)
     list_of_games = list(my_filter)
     print('Found {} games'.format(len(list_of_games)))
     
@@ -420,7 +419,7 @@ if __name__ == "__main__":
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
     
-    print('Finished scraping pages')
+    print('\nFinished scraping pages')
 
     try:
         game_dataframe = read_into_table("./raw_data/*/*.json")

@@ -125,7 +125,8 @@ class Scraper:
             Namely the title; the current and previous
             prices with the discount, if applicable;
             critics review scores; the name of the developer;
-            the name of the publisher; the game's release date; and a list of photo urls
+            the name of the publisher; the game's release date; 
+            and a list of photo urls
         '''
         html = requests.get(url).text
         page = BeautifulSoup(html, 'html.parser')
@@ -314,7 +315,7 @@ def read_into_table(json_location):
     
     Returns:
         game_df(pandas.DataFrame): A Dataframe containing all the info
-        scraped about every game whoKHTMLse files exist locally
+        scraped about every game whose files exist locally
     '''
     file_list = []
 

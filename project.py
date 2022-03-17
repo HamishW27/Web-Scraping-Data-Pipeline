@@ -24,13 +24,11 @@ import glob
 import os
 import re
 import pandas as pd
-import json
 import boto3
-from sqlalchemy import create_engine
-from certification import *
+from certification import engine
 
 '''
-For security, this program requires a file named certification.py 
+For security, this program requires a file named certification.py
 formatted as follows in this same directory:
 
 from sqlalchemy import create_engine
@@ -41,8 +39,10 @@ USER = 'postgres'
 PASSWORD = #RDS User Password
 PORT = 5432
 DATABASE = 'postgres'
-engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
+engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}:
+//{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
 '''
+
 
 class Scraper:
     '''
@@ -82,8 +82,8 @@ class Scraper:
         Returns:
             None
         '''
-        accept_cookies_button = driver.find_element(By.XPATH,
-            '//*[@id="onetrust-accept-btn-handler"]')
+        accept_cookies_button = driver.find_element(
+            By.XPATH, '//*[@id="onetrust-accept-btn-handler"]')
         accept_cookies_button.click()
 
     def get_links(self):
@@ -92,17 +92,19 @@ class Scraper:
         games in the Epic Games Store
 
         Returns:
-            self.links(List): A list of urls (str) pertaining to each individual game
+            self.links(List): A list of urls (str) pertaining
+            to each individual game
         '''
 
-        webpages = [self.webpage + '&count=40&start=' + str(i*40) for i in range(0,27)]
+        webpages = [self.webpage + '&count=40&start=' +
+                    str(i*40) for i in range(0, 27)]
 
         for webpage in tqdm(range(len(webpages)), desc='Getting page links'):
-            self.driver.get(webpages[webpage])         
+            self.driver.get(webpages[webpage])
             time.sleep(10)
 
-            game_list = self.driver.find_elements(By.XPATH,
-            '//*[@data-component="BrowseGrid"]//*[@role="link"]')
+            game_list = self.driver.find_elements(
+                By.XPATH, '//*[@data-component="BrowseGrid"]//*[@role="link"]')
 
             for game in game_list:
                 link = game.get_attribute('href')
@@ -113,33 +115,33 @@ class Scraper:
     @staticmethod
     def scrape_page_info(url, url_and_ids):
         '''
-        This is a static method that scrapes the useful information 
+        This is a static method that scrapes the useful information
         of an epicgames.com game's url
 
-        Args: 
+        Args:
             url(string): the url that the user wishes to scrape.
             Though this is passed in via the method in main.
 
-        Returns: 
+        Returns:
             game_dict(dictionary): A dictionary of useful attributes.
             Namely the title; the current and previous
             prices with the discount, if applicable;
             critics review scores; the name of the developer;
-            the name of the publisher; the game's release date; 
+            the name of the publisher; the game's release date;
             and a list of photo urls
         '''
         html = requests.get(url).text
         page = BeautifulSoup(html, 'html.parser')
 
         uuid = next(item for item in url_and_ids if item["url"] == url
-        )['id']
+                    )['id']
 
         # Scrape the title and the price changes individually
         title = page.find(attrs={'data-component': "PDPTitleHeader"}).text
         try:
             price_layout = page.find(
-            attrs={'data-component': "PriceLayout"}).text.split('£')
-        
+                attrs={'data-component': "PriceLayout"}).text.split('£')
+
         except Exception:
             price_layout = [None, None, None]
 
@@ -147,7 +149,9 @@ class Scraper:
             if price_layout[0] == 'Free':
                 discount, reduced_from_price, price = None, None, 0
             elif len(price_layout) != 3:
-                discount, reduced_from_price, price = None, None, price_layout[1]
+                discount = None
+                reduced_from_price = None
+                price = price_layout[1]
             else:
                 discount, reduced_from_price, price = price_layout
                 discount = parse_percentage(discount)
@@ -166,13 +170,13 @@ class Scraper:
             developer = sidebar[sidebar.index('Developer') + 1]
             publisher = sidebar[sidebar.index('Publisher') + 1]
             release_date = sidebar[sidebar.index('Release Date') + 1]
-            release_date_as_datetime = datetime.strptime(
+            release_date_as_dt = datetime.strptime(
                 release_date, '%m/%d/%y')
         except Exception:
             developer = None
             publisher = None
             release_date = None
-            release_date_as_datetime = None
+            release_date_as_dt = None
 
         # Scrape genre
         try:
@@ -206,21 +210,23 @@ class Scraper:
                 attrs={'data-component': "Picture"})
             pictures = [i.find('img').get('src') for i in dirty_pictures]
             pictures = [pic for pic in pictures if not pic.
-            startswith('https://catalogadmin')]
-            #solves issue with picture scraping
+                        startswith('https://catalogadmin')]
+            # solves issue with picture scraping
         except Exception:
             pictures = []
 
         # Return a dictionary of all useful page details
-        game_dict = {'uuid': uuid, 'url': url, 'title': title, 'discounted from price': reduced_from_price,
-                'price': price, 'discount': discount, 'developer': developer, 'publisher': publisher,
-                'genre': genre_list, 'release date': release_date_as_datetime,
-                'critics recommend': critic_recommend,
-                'critic top average': critic_top_average,
-                'pictures': pictures}
-        
+        game_dict = {'uuid': uuid, 'url': url, 'title': title,
+                     'discounted from price': reduced_from_price,
+                     'price': price, 'discount': discount,
+                     'developer': developer, 'publisher': publisher,
+                     'genre': genre_list, 'release date': release_date_as_dt,
+                     'critics recommend': critic_recommend,
+                     'critic top average': critic_top_average,
+                     'pictures': pictures}
+
         return game_dict
-    
+
     @staticmethod
     def scrape_images(folder_name, pictures):
         '''
@@ -231,13 +237,15 @@ class Scraper:
             folder_name(string) the name of the folder within ./raw_data
             that the images will be saved into
             pictures(list) a list of the urls corresponding to each image
-        
+
         Returns:
             None
         '''
         for j in range(len(pictures)):
-            filename = './raw_data/' + folder_name + '/images/{}.jpg'.format(str(j))
+            filename = './raw_data/' + folder_name + \
+                '/images/{}.jpg'.format(str(j))
             urllib.request.urlretrieve(pictures[j], filename)
+
 
 def parse_percentage(str):
     '''
@@ -247,12 +255,13 @@ def parse_percentage(str):
     Args:
         str(string): A string pertaining to a review as a percent
         containing ampersand(s)
-    
+
     Returns:
-        int(str.strip('%'))(Integer): An integer equal to the 
+        int(str.strip('%'))(Integer): An integer equal to the
         numerical representation of the percentage of str
     '''
     return int(str.strip('%'))
+
 
 def create_folders(id):
     '''
@@ -261,28 +270,30 @@ def create_folders(id):
 
     Args:
         id(string): UUID4 as string
-    
+
     Returns:
         None
     '''
     Path('./raw_data/' + id
-             ).mkdir(parents=True, exist_ok=True)
+         ).mkdir(parents=True, exist_ok=True)
     Path('./raw_data/' + id + '/images'
-             ).mkdir(parents=True, exist_ok=True)
+         ).mkdir(parents=True, exist_ok=True)
+
 
 def flatten(t):
     '''
-    Function to 'flatten' a list ie. to generate a single list of items 
-    from a list of lists containing multiple items 
+    Function to 'flatten' a list ie. to generate a single list of items
+    from a list of lists containing multiple items
 
     Args:
         t(List): A list containing multiple lists
-    
+
     Returns:
         Unnamed(List): A List of items within the
         lists inside of the list in the argument
     '''
     return [item for sublist in t for item in sublist]
+
 
 def find_existing_table(table_name, column_name):
     '''
@@ -294,25 +305,26 @@ def find_existing_table(table_name, column_name):
         database in which the column of ids is stored
         column_name (string): The name of the column within the database
         in which the ids are stored
-    
+
     Returns:
         Unnamed(List): A list of the ids of games stored in the database
     '''
     try:
         ids = pd.read_sql_table(table_name, engine, columns=[column_name])
         return flatten(ids.values.tolist())
-    except:
+    except Exception:
         return []
+
 
 def read_into_table(json_location):
     '''
-    Generates a database from locally stored files to ensure that 
+    Generates a database from locally stored files to ensure that
     duplicate files are not scraped in the interest of reducing runtime
 
     Args:
-        json_location(string): The location of the raw_data folder 
+        json_location(string): The location of the raw_data folder
         in which json files and images are stored
-    
+
     Returns:
         game_df(pandas.DataFrame): A Dataframe containing all the info
         scraped about every game whose files exist locally
@@ -322,9 +334,9 @@ def read_into_table(json_location):
     os.listdir()
     for file in glob.glob(json_location):
         file_list.append(file)
-    
-    dfs = [] # an empty list to store the data frames
-    
+
+    dfs = []  # an empty list to store the data frames
+
     for file in file_list:
         with open(file) as json_file:
             data = json.load(json_file)
@@ -333,6 +345,7 @@ def read_into_table(json_location):
 
     game_df = pd.concat(dfs, ignore_index=True)
     return game_df
+
 
 def upload_table(df_name, output_name):
     '''
@@ -343,9 +356,10 @@ def upload_table(df_name, output_name):
         output_name(string): The name to give to the table being uploaded
 
     Returns:
-        None 
+        None
     '''
     df_name.to_sql(output_name, engine, if_exists='append')
+
 
 def read_photos_into_table(json_dataframe):
     '''
@@ -353,12 +367,12 @@ def read_photos_into_table(json_dataframe):
 
     Args:
         json_dataframe(pd.Dataframe): The name of the 'games' table
-        in the database containing local image data. 
+        in the database containing local image data.
         This is used to create a table of images
-    
+
     Returns:
         picture_df(pd.Dataframe): A table of information about the images
-        scraped containing ids, urls, image names, and the id of the 
+        scraped containing ids, urls, image names, and the id of the
         game they belong to
     '''
     dfs = []
@@ -367,22 +381,28 @@ def read_photos_into_table(json_dataframe):
         pictures = row['pictures']
         filenames = sorted(glob.glob("raw_data/{}/images/*.jpg".format(id)))
         for num, picture in enumerate(pictures):
-            game_uuid = re.sub('/images/.*\.jpg','',filenames[num])
-            game_uuid = re.sub('raw_data/','', game_uuid)
-            df_part = {'photo_uuid':uuid.uuid4(), 'url':picture, 'img_name':filenames[num], 'game_uuid':game_uuid}
+            game_uuid = re.sub('/images/.*\.jpg', '', filenames[num])
+            game_uuid = re.sub('raw_data/', '', game_uuid)
+            df_part = {'photo_uuid': uuid.uuid4(), 'url': picture,
+                       'img_name': filenames[num], 'game_uuid': game_uuid}
             df_part = pd.DataFrame(df_part, index=[0])
             dfs.append(df_part)
-        
+
     picture_df = pd.concat(dfs, ignore_index=True)
 
     return picture_df
 
 
-def uploadDirectory(path,bucketname):
+def uploadDirectory(path, bucketname):
     s3_client = boto3.client('s3')
-    for root,dirs,files in os.walk(path):
+    for root, dirs, files in os.walk(path):
         for file in files:
-            s3_client.upload_file(os.path.join(root,file),bucketname,file)
+            local_path = os.path.join(root, file)
+            local_directory = os.getcwd()
+            relative_path = os.path.relpath(local_path, local_directory)
+            s3_path = os.path.join('/', relative_path)
+            s3_client.upload_file(local_path, bucketname, s3_path)
+
 
 if __name__ == "__main__":
     existing_urls = find_existing_table('games', 'url')
@@ -397,21 +417,21 @@ if __name__ == "__main__":
         'https://store.epicgames.com/en-US/p'), list_of_games)
     list_of_games = list(my_filter)
     print('Found {} games'.format(len(list_of_games)))
-    
+
     id_links = []
     for i in range(len(list_of_games)):
         id_links.append({'url': list_of_games[i], 'id': str(uuid.uuid4())})
 
-    #create a folder to store the data
+    # create a folder to store the data
     Path('./raw_data').mkdir(parents=True, exist_ok=True)
 
-    #scrape each page and download the information
+    # scrape each page and download the information
     for i in tqdm(range(len(id_links)), desc='Scraping pages'):
         url = id_links[i]['url']
         if url in existing_urls:
             continue
         game_info = epicgames.scrape_page_info(
-        url, id_links)
+            url, id_links)
         id = str(id_links[i]['id'])
         create_folders(id)
         epicgames.scrape_images(id, game_info['pictures'])
@@ -419,7 +439,7 @@ if __name__ == "__main__":
             id + '/' + 'data.json'
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
-    
+
     print('\nFinished scraping pages')
 
     try:
@@ -427,13 +447,13 @@ if __name__ == "__main__":
         upload_table(game_dataframe, 'games')
     except ValueError:
         print('No new games to add')
-    
+
     try:
         photo_dataframe = read_photos_into_table(game_dataframe)
         upload_table(photo_dataframe, 'images')
-    except NameError:
+    except Exception:
         print('No new images to add')
-    
+
     try:
         uploadDirectory('./raw_data', 'aicorescraperhamishw')
         print('Uploaded data to bucket')

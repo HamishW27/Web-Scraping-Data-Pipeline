@@ -1,6 +1,6 @@
 '''
 This is a scraper module specifically for use with the website
-"https://www.epicgames.com/store/en-US/."
+"https://store.epicgames.com/en-US/".
 it contains the Scraper class which allows you to:
 - Scrape the homepage for links to games
 - Scrape details about each game from their respective pages

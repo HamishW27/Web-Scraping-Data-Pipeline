@@ -440,7 +440,7 @@ if __name__ == "__main__":
         with open(filename, 'w') as f:
             json.dump(game_info, f, indent=4, default=str)
 
-    print('\nFinished scraping pages')
+    print('Finished scraping pages')
 
     try:
         game_dataframe = read_into_table("./raw_data/*/*.json")
